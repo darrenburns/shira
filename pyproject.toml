@@ -1,13 +1,19 @@
 [tool.poetry]
 name = "shira"
-version = "0.1.0"
-description = ""
+version = "0.1.0a0"
+description = "Investigate!"
 authors = ["Darren Burns <darrenb900@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+textual = {version = "^0.4.0", extras = ["dev"]}
 
+[tool.poetry.scripts]
+shira = 'shira.shira:run'
+
+[tool.poetry.group.dev.dependencies]
+ward = "^0.67.0b0"
 
 [build-system]
 requires = ["poetry-core"]
