@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pkgutil
+from dataclasses import dataclass
 from operator import attrgetter
 from typing import Iterable
 
@@ -14,8 +15,15 @@ from textual.widget import Widget
 from textual.widgets import Input
 
 
+@dataclass
+class CompletionCandidate:
+    primary: str
+    secondary: str
+    original_object: pkgutil.ModuleInfo | None
+
+
 class SearchCompletionRender:
-    def __init__(self, filter: str, matches: Iterable[pkgutil.ModuleInfo],
+    def __init__(self, filter: str, matches: Iterable[CompletionCandidate],
                  highlight_index: int,
                  component_styles: dict[str, RenderStyles]) -> None:
         self.filter = filter
@@ -29,7 +37,7 @@ class SearchCompletionRender:
         matches = []
         for index, match in enumerate(self.matches):
             match = Text.from_markup(
-                f"{match.name:<{options.max_width - 3}}[dim]{'pkg' if match.ispkg else 'mod'}")
+                f"{match.primary:<{options.max_width - 3}}[dim]{match.secondary}")
             matches.append(match)
             if self.highlight_index == index:
                 match.stylize(self._highlight_item_style)
@@ -45,16 +53,20 @@ class SearchCompletion(Widget):
 
     def __init__(
         self,
-        modules: Iterable[pkgutil.ModuleInfo],
+        candidates: Iterable[CompletionCandidate],
         name: str | None = None,
         id: str | None = None,
         classes: str | None = None,
     ):
         super().__init__(name=name, id=id, classes=classes)
-        self.modules = sorted(modules, key=attrgetter("name"))
+        self.candidates = []
+        self.update_candidates(candidates)
+
+    def update_candidates(self, new_candidates: Iterable[CompletionCandidate]) -> None:
+        self.candidates = sorted(new_candidates, key=attrgetter("primary"))
 
     @property
-    def highlighted_module(self):
+    def highlighted_candidate(self):
         if not self.matches:
             return 0
         return self.matches[self.highlight_index]
@@ -69,29 +81,46 @@ class SearchCompletion(Widget):
         self.refresh()
 
     @property
-    def search_value(self) -> str:
-        return self._search_value
+    def filter(self) -> str:
+        return self._filter
 
-    @search_value.setter
-    def search_value(self, value: str):
-        self._search_value = value
-        new_matches = [module for module in self.modules if value in module.name]
+    @filter.setter
+    def filter(self, value: str):
+        self._filter = value
+
+        right_dot_index = value.rfind(".")
+        if right_dot_index == -1:
+            search_value = value
+        else:
+            search_value = value[right_dot_index + 1:]
+
+        print("-----")
+        print(search_value)
+        print([candidate.primary for candidate in self.candidates])
+        print("-----")
+
+        new_matches = []
+        for candidate in self.candidates:
+            if search_value in candidate.primary:
+                new_matches.append(candidate)
+
         self.matches = sorted(new_matches,
-                              key=lambda module: module.name.startswith(value),
+                              key=lambda candidate: candidate.primary.startswith(
+                                  search_value),
                               reverse=True)
-        self.parent.display = len(value) > 1 and len(self.matches) > 0
+        self.parent.display = len(self.matches) > 0
         self.refresh()
 
     def on_mount(self, event: events.Mount) -> None:
         self._highlight_index = 0
-        self._search_value = ""
-        self.matches = sorted([module for module in self.modules],
-                              key=attrgetter("name"))
+        self._filter = ""
+        self.matches = sorted([candidate for candidate in self.candidates],
+                              key=attrgetter("primary"))
 
     def get_content_width(self, container: Size, viewport: Size) -> int:
         if not self.matches:
             return 0
-        width = len(max(self.matches, key=len))
+        width = len(max([match.primary for match in self.matches], key=len))
         return width
 
     def get_content_height(self, container: Size, viewport: Size, width: int) -> int:
@@ -99,7 +128,7 @@ class SearchCompletion(Widget):
 
     def render(self) -> RenderableType:
         return SearchCompletionRender(
-            filter=self.search_value,
+            filter=self.filter,
             matches=self.matches,
             highlight_index=self.highlight_index,
             component_styles=self._component_styles,
@@ -119,18 +148,7 @@ class SearchBar(Input):
         )
 
     def watch_value(self, value: str) -> None:
-        completion = self.app.query_one(SearchCompletion)
-        completion_parent = self.app.query_one("#search-completion-container")
-        top, right, bottom, left = completion_parent.styles.margin
-        completion_parent.styles.margin = (
-            top,
-            right,
-            bottom,
-            self.cursor_position + 3
-        )
-        completion.search_value = value
-        # Trigger the property setter to ensure validation re-runs.
-        completion.highlight_index = completion.highlight_index
+        self.emit_no_wait(SearchBar.Updated(self, value, self.cursor_position))
 
     def on_key(self, event: events.Key) -> None:
         completion = self.app.query_one(SearchCompletion)
@@ -146,15 +164,13 @@ class SearchBar(Input):
         elif event.key == "tab":
             if completion_parent.display:
                 # The dropdown is visible, fill in the completion string
-                module = completion.highlighted_module
-                value = module.name + " "
-                self.value = value
-                self.cursor_position = len(value)
-                completion.highlight_index = completion.highlight_index
-                completion_parent.display = False
-
-                self.emit_no_wait(self.NewLookupChain(self, [module]))
-
+                candidate = completion.highlighted_candidate
+                right_dot = self.value.rfind(".")
+                if right_dot == -1:
+                    self.value = candidate.primary + "."
+                else:
+                    self.value = f"{self.value[:right_dot]}.{candidate.primary}."
+                self.cursor_position = len(self.value)
                 event.stop()
 
         # TODO: More sensible scrolling
@@ -162,8 +178,9 @@ class SearchBar(Input):
         target_region = Region(x, completion.highlight_index, width, height)
         completion_parent.scroll_to_region(target_region, animate=False)
 
-    class NewLookupChain(Message, bubble=True):
+    class Updated(Message, bubble=True):
         def __init__(self, sender: SearchBar,
-                     chain: list[str | pkgutil.ModuleInfo]) -> None:
+                     value: str, cursor_position: int) -> None:
             super().__init__(sender)
-            self.chain = chain
+            self.value = value
+            self.cursor_position = cursor_position

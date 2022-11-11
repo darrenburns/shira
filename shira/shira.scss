@@ -64,12 +64,16 @@ SearchBar {
   background: $background-darken-1;
 }
 
-#module-panel {
+#object-panel {
   height: auto;
+  padding-right: 1;
 }
 
 #body-container {
   background: $background;
-  padding: 1;
   overflow: hidden auto;
+  padding: 1 0 1 1;
+  scrollbar-gutter: stable;
+  scrollbar-size-vertical: 1;
+  scrollbar-color: $success;
 }
