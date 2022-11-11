@@ -42,8 +42,6 @@ class Shira(App):
         self.query_one("#search-input").focus()
 
     def on_search_bar_updated(self, event: SearchBar.Updated) -> None:
-
-        print(f"SEARCH BAR UPDATED {event.value}")
         completion = self.app.query_one(SearchCompletion)
 
         value = event.value
@@ -99,14 +97,10 @@ class Shira(App):
             if object_to_search is None:
                 completion.update_candidates([])
             else:
-                print(f"the other parts are {other_parts}")
                 # TODO: We should update this loop to only go up to the cursor position
                 search_part = ""
                 for part in other_parts:
                     if part == "":
-                        print("part is empty string")
-                        print(f"object_to_search={object_to_search}")
-                        print(f"search_part = {search_part}")
                         break
 
                     if isinstance(object_to_search, pkgutil.ModuleInfo):
@@ -120,7 +114,6 @@ class Shira(App):
                         break
 
                     obj = object_dict.get(part, NOT_FOUND)
-                    print(f"looking on {object_to_search} for {part} and got {obj}")
                     if obj == NOT_FOUND:
                         search_part = part
                         break
@@ -133,10 +126,14 @@ class Shira(App):
                             object_to_search.name)
 
                     if hasattr(object_to_search, "__dict__"):
-                        completion.update_candidates([
-                            CompletionCandidate(name, "---", original_object=obj)
-                            for name, obj in object_to_search.__dict__.items()
-                        ])
+                        new_candidates = []
+                        for name, obj in object_to_search.__dict__.items():
+                            if name.startswith("__") and name.endswith("__"):
+                                continue
+                            new_candidates.append(
+                                CompletionCandidate(name, "---", original_object=obj))
+
+                        completion.update_candidates(new_candidates)
 
                 object_panel.active_object = object_to_search
 

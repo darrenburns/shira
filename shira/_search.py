@@ -170,6 +170,8 @@ class SearchBar(Input):
                     self.value = f"{self.value[:right_dot]}.{candidate.primary}."
                 self.cursor_position = len(self.value)
                 event.stop()
+        elif event.key == "escape":
+            completion_parent.display = False
 
         # TODO: More sensible scrolling
         x, y, width, height = completion.region
