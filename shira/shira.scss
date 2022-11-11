@@ -1,5 +1,5 @@
 Screen {
-  layers: base overlay;
+  layers: overlay;
 }
 
 #search-bar-container {
@@ -13,7 +13,7 @@ Screen {
   background: $background-lighten-1;
 }
 
-Input {
+SearchBar {
   padding: 0;
   border: none;
   height: 1;
@@ -39,22 +39,23 @@ Input {
 }
 
 #search-completion {
+  padding-right: 1;
   height: auto;
-  padding-left: 1;
-  border-left: wide $success;
+  border-left: wide $success-darken-1;
 }
 
 #search-completion-container {
   dock: top;
+  width: 30;
   margin-top: 1;
   overflow: hidden auto;
   height: auto;
   max-height: 14;
-  width: 20;
   layer: overlay;
   scrollbar-size-vertical: 1;
   scrollbar-color: $success;
   background: $boost;
+  display: none;
 }
 
 #search-completion-context {
@@ -63,7 +64,12 @@ Input {
   background: $background-darken-1;
 }
 
+#module-panel {
+  height: auto;
+}
+
 #body-container {
   background: $background;
   padding: 1;
+  overflow: hidden auto;
 }
