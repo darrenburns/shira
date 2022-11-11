@@ -62,6 +62,7 @@ class Shira(App):
         parts = [part for part in value.split(".")]
 
         object_panel = self.query_one("#object-panel", ObjectPanel)
+        search_part = ""
         if len(parts) == 0:
             # If we're empty, then there should be no candidates
             completion.update_candidates([])
@@ -81,7 +82,7 @@ class Shira(App):
             completion.update_candidates(candidates)
             # Tell the dropdown list about the part to use for highlighting matching candidates
             # Since there's only 1 part, we don't need to do anything tricky here
-            completion.filter = module_name
+            search_part = module_name
         else:
             # We have multiple parts now, so finding our list of candidates is more complex
             # We'll look through the parts to get to the rightmost valid part BEFORE the cursor position.
@@ -100,9 +101,12 @@ class Shira(App):
             else:
                 print(f"the other parts are {other_parts}")
                 # TODO: We should update this loop to only go up to the cursor position
-                search_part = None
+                search_part = ""
                 for part in other_parts:
                     if part == "":
+                        print("part is empty string")
+                        print(f"object_to_search={object_to_search}")
+                        print(f"search_part = {search_part}")
                         break
 
                     if isinstance(object_to_search, pkgutil.ModuleInfo):
@@ -123,17 +127,11 @@ class Shira(App):
                     else:
                         object_to_search = obj
 
-                    # for name, object in object_to_search.__dict__.items():
-                    #     if name == part:
-                    #         object_to_search = object
-                    #         break
-
                 if object_to_search is not None:
                     if isinstance(object_to_search, pkgutil.ModuleInfo):
                         object_to_search = importlib.import_module(
                             object_to_search.name)
-                    if search_part:
-                        completion.filter = search_part
+
                     if hasattr(object_to_search, "__dict__"):
                         completion.update_candidates([
                             CompletionCandidate(name, "---", original_object=obj)
@@ -141,41 +139,6 @@ class Shira(App):
                         ])
 
                 object_panel.active_object = object_to_search
-
-
-        #
-        #
-        # other_parts = [part for part in parts[1:] if part]
-        # if not other_parts:
-        #     new_active_object = root_module
-        # else:
-        #     # Lets look through the parts to find the rightmost available object
-        #     new_active_object = None
-        #     parent = parts[0]
-        #     for part in other_parts:
-        #         try:
-        #             child = getattr(parent, part)
-        #         except AttributeError:
-        #             # Went as far as we can, use the child
-        #             break
-        #         else:
-        #             parent = child
-        #
-        #         new_active_object = child
-        #
-        # new_candidates = []
-        # for name, val in new_active_object.__dict__.items():
-        #     if isinstance(val, ModuleType):
-        #         val = importlib.import_module(val.__name__)
-        #     new_candidates.append(
-        #         CompletionCandidate(
-        #             primary=name,
-        #             secondary="bla",  # TODO: fixme
-        #             original_object=val,
-        #         )
-        #     )
-        # print(f"UPDATING CANDIDATES TO {new_candidates}")
-        # completion.update_candidates(new_candidates)
 
         # The search bar has updated, so lets update the completion dropdown
         # First, align it with the cursor position
@@ -187,7 +150,7 @@ class Shira(App):
             bottom,
             cursor_position + 3,
         )
-        completion.filter = value
+        completion.filter = search_part
         completion.highlight_index = completion.highlight_index
 
 

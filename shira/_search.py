@@ -64,6 +64,7 @@ class SearchCompletion(Widget):
 
     def update_candidates(self, new_candidates: Iterable[CompletionCandidate]) -> None:
         self.candidates = sorted(new_candidates, key=attrgetter("primary"))
+        self.refresh()
 
     @property
     def highlighted_candidate(self):
@@ -86,15 +87,11 @@ class SearchCompletion(Widget):
 
     @filter.setter
     def filter(self, value: str):
+
         self._filter = value
+        search_value = value
 
-        right_dot_index = value.rfind(".")
-        if right_dot_index == -1:
-            search_value = value
-        else:
-            search_value = value[right_dot_index + 1:]
-
-        print("-----")
+        print(f"-----SETTING FILTER TO {value}-----")
         print(search_value)
         print([candidate.primary for candidate in self.candidates])
         print("-----")
@@ -148,6 +145,7 @@ class SearchBar(Input):
         )
 
     def watch_value(self, value: str) -> None:
+        print(f"value watcher fired in searchbar input {value}")
         self.emit_no_wait(SearchBar.Updated(self, value, self.cursor_position))
 
     def on_key(self, event: events.Key) -> None:
