@@ -14,6 +14,7 @@ shira = 'shira.shira:run'
 
 [tool.poetry.group.dev.dependencies]
 ward = "^0.67.0b0"
+black = "^22.10.0"
 
 [build-system]
 requires = ["poetry-core"]

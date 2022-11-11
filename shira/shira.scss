@@ -1,0 +1,69 @@
+Screen {
+  layers: base overlay;
+}
+
+#search-bar-container {
+  dock: top;
+  layout: horizontal;
+  width: 100%;
+  height: 1;
+}
+
+#search-bar:focus-within {
+  background: $background-lighten-1;
+}
+
+Input {
+  padding: 0;
+  border: none;
+  height: 1;
+  width: 1fr;
+}
+
+#search-input {
+  padding-left: 1;
+}
+
+#search-prompt {
+  width: 3;
+  padding: 0 1;
+  background: $success;
+  color: $text;
+}
+
+
+#search-completion > .search-completion--selected-item {
+  color: $text;
+  background: $background-lighten-2;
+  text-style: bold;
+}
+
+#search-completion {
+  height: auto;
+  padding-left: 1;
+  border-left: wide $success;
+}
+
+#search-completion-container {
+  dock: top;
+  margin-top: 1;
+  overflow: hidden auto;
+  height: auto;
+  max-height: 14;
+  width: 20;
+  layer: overlay;
+  scrollbar-size-vertical: 1;
+  scrollbar-color: $success;
+  background: $boost;
+}
+
+#search-completion-context {
+  height: 1;
+  color: $text;
+  background: $background-darken-1;
+}
+
+#body-container {
+  background: $background;
+  padding: 1;
+}
