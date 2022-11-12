@@ -1,4 +1,5 @@
 import importlib
+import inspect
 import pkgutil
 
 from textual import events
@@ -128,10 +129,32 @@ class Shira(App):
                     if hasattr(object_to_search, "__dict__"):
                         new_candidates = []
                         for name, obj in object_to_search.__dict__.items():
+                            print(obj, getattr(obj, "__package__", None))
                             if name.startswith("__") and name.endswith("__"):
                                 continue
-                            new_candidates.append(
-                                CompletionCandidate(name, "---", original_object=obj))
+
+                            is_module = inspect.ismodule(obj)
+                            if is_module and getattr(obj, "__package__",
+                                                     "-x-") == getattr(object_to_search,
+                                                                       "__package__",
+                                                                       "-y-"):
+                                new_candidates.append(
+                                    CompletionCandidate(name, "mod",
+                                                        original_object=obj))
+                            elif not is_module:
+                                obj_module = inspect.getmodule(obj)
+                                if inspect.ismodule(object_to_search):
+                                    include = obj_module is object_to_search
+                                else:
+                                    include = obj_module is inspect.getmodule(object_to_search)
+
+                                if include:
+                                    new_candidates.append(
+                                        CompletionCandidate(name, "---",
+                                                            original_object=obj))
+
+                            # If it's a module, include if it has same __package__
+                            # If it's not a module, include if in same module
 
                         completion.update_candidates(new_candidates)
 
