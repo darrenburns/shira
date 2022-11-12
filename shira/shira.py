@@ -16,12 +16,14 @@ NOT_FOUND = "poi12zn@$][]daza"
 class Shira(App):
     def compose(self) -> ComposeResult:
         self.modules = {module.name: module for module in pkgutil.iter_modules()}
-        self.original_candidates = [CompletionCandidate(
-            primary=module.name,
-            secondary='pkg' if module.ispkg else 'mod',
-            original_object=module,
-        )
-            for module in self.modules.values()]
+        self.original_candidates = [
+            CompletionCandidate(
+                primary=module.name,
+                secondary="pkg" if module.ispkg else "mod",
+                original_object=module,
+            )
+            for module in self.modules.values()
+        ]
         yield Horizontal(
             Static(">", id="search-prompt"),
             SearchBar(id="search-input"),
@@ -106,7 +108,8 @@ class Shira(App):
 
                     if isinstance(object_to_search, pkgutil.ModuleInfo):
                         object_to_search = importlib.import_module(
-                            object_to_search.name)
+                            object_to_search.name
+                        )
 
                     # Look for this part on the current object to search
                     object_dict = getattr(object_to_search, "__dict__", None)
@@ -124,7 +127,8 @@ class Shira(App):
                 if object_to_search is not None:
                     if isinstance(object_to_search, pkgutil.ModuleInfo):
                         object_to_search = importlib.import_module(
-                            object_to_search.name)
+                            object_to_search.name
+                        )
 
                     if hasattr(object_to_search, "__dict__"):
                         new_candidates = []
@@ -134,24 +138,29 @@ class Shira(App):
                                 continue
 
                             is_module = inspect.ismodule(obj)
-                            if is_module and getattr(obj, "__package__",
-                                                     "-x-") == getattr(object_to_search,
-                                                                       "__package__",
-                                                                       "-y-"):
+                            if is_module and getattr(
+                                obj, "__package__", "-x-"
+                            ) == getattr(object_to_search, "__package__", "-y-"):
                                 new_candidates.append(
-                                    CompletionCandidate(name, "mod",
-                                                        original_object=obj))
+                                    CompletionCandidate(
+                                        name, "mod", original_object=obj
+                                    )
+                                )
                             elif not is_module:
                                 obj_module = inspect.getmodule(obj)
                                 if inspect.ismodule(object_to_search):
                                     include = obj_module is object_to_search
                                 else:
-                                    include = obj_module is inspect.getmodule(object_to_search)
+                                    include = obj_module is inspect.getmodule(
+                                        object_to_search
+                                    )
 
                                 if include:
                                     new_candidates.append(
-                                        CompletionCandidate(name, "---",
-                                                            original_object=obj))
+                                        CompletionCandidate(
+                                            name, "---", original_object=obj
+                                        )
+                                    )
 
                             # If it's a module, include if it has same __package__
                             # If it's not a module, include if in same module

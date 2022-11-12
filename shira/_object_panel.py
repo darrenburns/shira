@@ -9,7 +9,6 @@ from textual.widget import Widget
 
 
 class ObjectPanel(Widget, can_focus=True):
-
     def on_mount(self, event: events.Mount) -> None:
         self.active_object = None
 

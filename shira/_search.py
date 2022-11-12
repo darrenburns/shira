@@ -23,21 +23,27 @@ class CompletionCandidate:
 
 
 class SearchCompletionRender:
-    def __init__(self, filter: str, matches: Iterable[CompletionCandidate],
-                 highlight_index: int,
-                 component_styles: dict[str, RenderStyles]) -> None:
+    def __init__(
+        self,
+        filter: str,
+        matches: Iterable[CompletionCandidate],
+        highlight_index: int,
+        component_styles: dict[str, RenderStyles],
+    ) -> None:
         self.filter = filter
         self.matches = matches
         self.highlight_index = highlight_index
         self.component_styles = component_styles
         self._highlight_item_style = self.component_styles.get(
-            "search-completion--selected-item").rich_style
+            "search-completion--selected-item"
+        ).rich_style
 
     def __rich_console__(self, console: Console, options: ConsoleOptions):
         matches = []
         for index, match in enumerate(self.matches):
             match = Text.from_markup(
-                f"{match.primary:<{options.max_width - 3}}[dim]{match.secondary}")
+                f"{match.primary:<{options.max_width - 3}}[dim]{match.secondary}"
+            )
             matches.append(match)
             if self.highlight_index == index:
                 match.stylize(self._highlight_item_style)
@@ -101,18 +107,20 @@ class SearchCompletion(Widget):
             if search_value in candidate.primary:
                 new_matches.append(candidate)
 
-        self.matches = sorted(new_matches,
-                              key=lambda candidate: candidate.primary.startswith(
-                                  search_value),
-                              reverse=True)
+        self.matches = sorted(
+            new_matches,
+            key=lambda candidate: candidate.primary.startswith(search_value),
+            reverse=True,
+        )
         self.parent.display = len(self.matches) > 0
         self.refresh()
 
     def on_mount(self, event: events.Mount) -> None:
         self._highlight_index = 0
         self._filter = ""
-        self.matches = sorted([candidate for candidate in self.candidates],
-                              key=attrgetter("primary"))
+        self.matches = sorted(
+            [candidate for candidate in self.candidates], key=attrgetter("primary")
+        )
 
     def get_content_width(self, container: Size, viewport: Size) -> int:
         if not self.matches:
@@ -133,10 +141,9 @@ class SearchCompletion(Widget):
 
 
 class SearchBar(Input):
-
-    def __init__(self, name: str | None = None,
-                 id: str | None = None,
-                 classes: str | None = None):
+    def __init__(
+        self, name: str | None = None, id: str | None = None, classes: str | None = None
+    ):
         super().__init__(
             placeholder="Start typing to search...",
             name=name,
@@ -179,8 +186,7 @@ class SearchBar(Input):
         completion_parent.scroll_to_region(target_region, animate=False)
 
     class Updated(Message, bubble=True):
-        def __init__(self, sender: SearchBar,
-                     value: str, cursor_position: int) -> None:
+        def __init__(self, sender: SearchBar, value: str, cursor_position: int) -> None:
             super().__init__(sender)
             self.value = value
             self.cursor_position = cursor_position
