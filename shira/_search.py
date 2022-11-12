@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import pkgutil
 from dataclasses import dataclass
 from operator import attrgetter
@@ -18,7 +19,7 @@ from textual.widgets import Input
 @dataclass
 class CompletionCandidate:
     primary: str
-    secondary: str
+    secondary: str | None
     original_object: pkgutil.ModuleInfo | None
 
 
@@ -41,8 +42,12 @@ class SearchCompletionRender:
     def __rich_console__(self, console: Console, options: ConsoleOptions):
         matches = []
         for index, match in enumerate(self.matches):
+            if not match.secondary:
+                secondary_text = self._find_secondary_text(match.original_object)
+            else:
+                secondary_text = match.secondary
             match = Text.from_markup(
-                f"{match.primary:<{options.max_width - 3}}[dim]{match.secondary}"
+                f"{match.primary:<{options.max_width - 3}}[dim]{secondary_text}"
             )
             matches.append(match)
             if self.highlight_index == index:
@@ -50,6 +55,14 @@ class SearchCompletionRender:
             match.highlight_regex(self.filter, style="black on #4EBF71")
 
         return Text("\n").join(matches)
+
+    def _find_secondary_text(self, obj: object) -> str:
+        if inspect.isfunction(obj):
+            return "def"
+        elif inspect.isclass(obj):
+            return "cls"
+        else:
+            return "---"
 
 
 class SearchCompletion(Widget):

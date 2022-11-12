@@ -158,7 +158,7 @@ class Shira(App):
                                 if include:
                                     new_candidates.append(
                                         CompletionCandidate(
-                                            name, "---", original_object=obj
+                                            name, None, original_object=obj
                                         )
                                     )
 
