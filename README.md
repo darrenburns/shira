@@ -2,7 +2,7 @@
 
 The Python inspector 🔍
 
-https://user-images.githubusercontent.com/5740731/201449930-0e99f623-de83-4772-93cd-6ee3e9e6f292.mov
+https://user-images.githubusercontent.com/5740731/201470178-d7e15582-2725-48f4-99f3-215b3b08c2d3.mov
 
 Shira is a terminal-based application for exploring Python objects.
 
