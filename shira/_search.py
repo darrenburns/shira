@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import pkgutil
 from dataclasses import dataclass
 from operator import attrgetter
 from typing import Iterable
@@ -20,7 +19,7 @@ from textual.widgets import Input
 class CompletionCandidate:
     primary: str
     secondary: str | None
-    original_object: pkgutil.ModuleInfo | None
+    original_object: object | None
 
 
 class SearchCompletionRender:
@@ -57,7 +56,7 @@ class SearchCompletionRender:
         return Text("\n").join(matches)
 
     def _find_secondary_text(self, obj: object) -> str:
-        if inspect.isfunction(obj):
+        if inspect.isfunction(obj) or hasattr(obj, '__wrapped__'):
             return "def"
         elif inspect.isclass(obj):
             return "cls"

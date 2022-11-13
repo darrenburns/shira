@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import importlib
 import inspect
 import pkgutil
+from pathlib import Path
 
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal
+from textual.widget import Widget
 from textual.widgets import Static
 
 from shira._object_panel import ObjectPanel
@@ -14,16 +18,34 @@ NOT_FOUND = "poi12zn@$][]daza"
 
 
 class Shira(App):
+    CSS_PATH = Path(__file__).parent / "shira.scss"
+
+    def __init__(self, initial_object: object | None = None, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.initial_object = initial_object
+        if initial_object is None:
+            self.modules = {module.name: module for module in pkgutil.iter_modules()}
+            self.original_candidates = [
+                CompletionCandidate(
+                    primary=module.name,
+                    secondary="pkg" if module.ispkg else "mod",
+                    original_object=module,
+                )
+                for module in self.modules.values()
+            ]
+        else:
+            candidates = []
+            object_contents = getattr(self.initial_object, "__dict__", {})
+            for name, value in object_contents.items():
+                print(name, value)
+                candidates.append(
+                    CompletionCandidate(
+                        name, secondary=None, original_object=value,
+                    )
+                )
+            self.original_candidates = candidates
+
     def compose(self) -> ComposeResult:
-        self.modules = {module.name: module for module in pkgutil.iter_modules()}
-        self.original_candidates = [
-            CompletionCandidate(
-                primary=module.name,
-                secondary="pkg" if module.ispkg else "mod",
-                original_object=module,
-            )
-            for module in self.modules.values()
-        ]
         yield Horizontal(
             Static(">", id="search-prompt"),
             SearchBar(id="search-input"),
@@ -43,6 +65,9 @@ class Shira(App):
 
     def on_mount(self, event: events.Mount) -> None:
         self.query_one("#search-input").focus()
+        object_panel = self.query_one("#object-panel", ObjectPanel)
+        if self.initial_object is not None:
+            object_panel.active_object = self.initial_object
 
     def on_search_bar_updated(self, event: SearchBar.Updated) -> None:
         completion = self.app.query_one(SearchCompletion)
@@ -54,6 +79,8 @@ class Shira(App):
 
         cursor_position = event.cursor_position
 
+        object_panel = self.query_one("#object-panel", ObjectPanel)
+
         # Fill up the list of candidates
         # How do we determine the candidates?
         # Active object should be the right-most resolvable part in the string
@@ -62,40 +89,46 @@ class Shira(App):
         #  same as it was before
         parts = [part for part in value.split(".")]
 
-        object_panel = self.query_one("#object-panel", ObjectPanel)
         search_part = ""
         if len(parts) == 0:
             # If we're empty, then there should be no candidates
             completion.update_candidates([])
         elif len(parts) == 1:
-            # If there's only one part, then we're searching for module_name in self.modules
-            module_name = parts[0]
+            # If there's only one part, then we're searching for module_name in self.modules,
+            # or we're looking at the initial object there is one.
+            candidates = []
+            search_part = parts[0]
+            if self.initial_object is not None:
+                object_panel.active_object = self.initial_object
 
             # Trim down the candidate list to those containing the query string
-            candidates = []
             for candidate in self.original_candidates:
-                if module_name in candidate.primary:
+                if search_part in candidate.primary:
                     candidates.append(candidate)
-                if module_name == candidate.primary:
+                # TODO: Double check this - if we type the exact search part that
+                #  matches a candidate, does the dropdown disappear?
+                if search_part == candidate.primary:
                     object_panel.active_object = candidate.original_object
 
             # Update the dropdown list with the new candidates
             completion.update_candidates(candidates)
             # Tell the dropdown list about the part to use for highlighting matching candidates
             # Since there's only 1 part, we don't need to do anything tricky here
-            search_part = module_name
         else:
             # We have multiple parts now, so finding our list of candidates is more complex
             # We'll look through the parts to get to the rightmost valid part BEFORE the cursor position.
-            module_name = parts[0]
-            other_parts = parts[1:]
 
             search_input = self.query_one("#search-input", SearchBar)
             cursor_position = search_input.cursor_position
 
             # Now we need to get into a scenario where we have an object that we wish to search,
             # and a search string to apply to it
-            object_to_search = self.modules.get(module_name)
+            if self.initial_object is not None:
+                object_to_search = self.initial_object
+                other_parts = parts[:]
+            else:
+                object_to_search = self.modules.get(parts[0])
+                other_parts = parts[1:]
 
             if object_to_search is None:
                 completion.update_candidates([])
@@ -133,7 +166,6 @@ class Shira(App):
                     if hasattr(object_to_search, "__dict__"):
                         new_candidates = []
                         for name, obj in object_to_search.__dict__.items():
-                            print(obj, getattr(obj, "__package__", None))
                             if name.startswith("__") and name.endswith("__"):
                                 continue
 
@@ -162,11 +194,9 @@ class Shira(App):
                                         )
                                     )
 
-                            # If it's a module, include if it has same __package__
-                            # If it's not a module, include if in same module
-
                         completion.update_candidates(new_candidates)
 
+                print(f"SETTING ACTIVE OBJECT TO {object_to_search}")
                 object_panel.active_object = object_to_search
 
         # The search bar has updated, so lets update the completion dropdown
@@ -183,8 +213,18 @@ class Shira(App):
         completion.highlight_index = completion.highlight_index
 
 
-app = Shira(css_path="shira.scss")
+def shira(initial_object: object) -> None:
+    shira = Shira(initial_object=initial_object)
+    shira.run()
+
+
+app = Shira()
 
 
 def run():
     app.run()
+
+
+if __name__ == '__main__':
+    thing = Widget()
+    shira(thing)
