@@ -37,7 +37,6 @@ class Shira(App):
             candidates = []
             object_contents = getattr(self.initial_object, "__dict__", {})
             for name, value in object_contents.items():
-                print(name, value)
                 candidates.append(
                     CompletionCandidate(
                         name, secondary=None, original_object=value,
@@ -196,7 +195,6 @@ class Shira(App):
 
                         completion.update_candidates(new_candidates)
 
-                print(f"SETTING ACTIVE OBJECT TO {object_to_search}")
                 object_panel.active_object = object_to_search
 
         # The search bar has updated, so lets update the completion dropdown
