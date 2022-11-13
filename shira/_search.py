@@ -31,7 +31,7 @@ class SearchCompletionRender:
         component_styles: dict[str, RenderStyles],
     ) -> None:
         self.filter = filter
-        self.matches = matches
+        self.matches = list(matches)
         self.highlight_index = highlight_index
         self.component_styles = component_styles
         self._highlight_item_style = self.component_styles.get(
@@ -45,13 +45,17 @@ class SearchCompletionRender:
                 secondary_text = self._find_secondary_text(match.original_object)
             else:
                 secondary_text = match.secondary
+
             match = Text.from_markup(
                 f"{match.primary:<{options.max_width - 3}}[dim]{secondary_text}"
             )
             matches.append(match)
+
             if self.highlight_index == index:
                 match.stylize(self._highlight_item_style)
-            match.highlight_regex(self.filter, style="black on #4EBF71")
+
+            if len(self.matches) < 12:
+                match.highlight_regex(self.filter, style="black on #4EBF71")
 
         return Text("\n").join(matches)
 

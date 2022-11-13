@@ -35,13 +35,17 @@ class Shira(App):
             ]
         else:
             candidates = []
-            object_contents = getattr(self.initial_object, "__dict__", {})
-            for name, value in object_contents.items():
-                candidates.append(
-                    CompletionCandidate(
-                        name, secondary=None, original_object=value,
+            for name in dir(self.initial_object):
+                try:
+                    value = getattr(self.initial_object, name, NOT_FOUND)
+                except Exception:
+                    continue
+                if value != NOT_FOUND:
+                    candidates.append(
+                        CompletionCandidate(
+                            name, secondary=None, original_object=value,
+                        )
                     )
-                )
             self.original_candidates = candidates
 
     def compose(self) -> ComposeResult:
@@ -72,10 +76,6 @@ class Shira(App):
         completion = self.app.query_one(SearchCompletion)
 
         value = event.value
-        if len(value) < 2:
-            completion.parent.display = False
-            return
-
         cursor_position = event.cursor_position
 
         object_panel = self.query_one("#object-panel", ObjectPanel)
