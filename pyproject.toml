@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 textual = { version = "^0.11.0", extras = ["dev"] }
-textual-autocomplete = "^1.1.0b0"
+textual-autocomplete = "^1.2.0b0"
 
 [tool.poetry.scripts]
 shira = 'shira.shira:run'
