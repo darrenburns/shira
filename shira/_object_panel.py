@@ -1,14 +1,25 @@
+from __future__ import annotations
+
 import importlib
 from pkgutil import ModuleInfo
 
 from rich._inspect import Inspect
-
 from rich.console import RenderableType
 from textual import events
 from textual.widget import Widget
 
 
 class ObjectPanel(Widget, can_focus=True):
+    def __init__(
+        self,
+        initial_object: object,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+    ):
+        self.active_object = initial_object
+        super().__init__(name=name, id=id, classes=classes)
+
     def on_mount(self, event: events.Mount) -> None:
         self.active_object = None
 
