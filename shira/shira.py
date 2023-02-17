@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pkgutil
 from pathlib import Path
 
 from textual.app import App, ComposeResult
@@ -11,6 +12,13 @@ from shira._object_panel import ObjectPanel
 
 
 def get_candidates(input_value: str, cursor_position: int) -> list[DropdownItem]:
+    if "." not in input_value:
+        return [
+            DropdownItem(main=module.name)
+            for module in pkgutil.iter_modules()
+            if input_value in module.name
+        ]
+
     return [
         DropdownItem(main="A"),
         DropdownItem(main="B"),
@@ -28,12 +36,13 @@ class Shira(App):
 
     def compose(self) -> ComposeResult:
         yield AutoComplete(
-            Input(placeholder="Type to search..."),
+            Input(placeholder="Type to search...", id="search-bar"),
             dropdown=Dropdown(
                 items=get_candidates,
+                id="dropdown"
             ),
         )
-        yield ObjectPanel()
+        yield ObjectPanel(self._initial_object)
 
 
 def shira(initial_object: object | None = None) -> None:

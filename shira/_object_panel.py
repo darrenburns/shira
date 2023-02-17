@@ -17,8 +17,8 @@ class ObjectPanel(Widget, can_focus=True):
         id: str | None = None,
         classes: str | None = None,
     ):
-        self.active_object = initial_object
         super().__init__(name=name, id=id, classes=classes)
+        self.active_object = initial_object
 
     def on_mount(self, event: events.Mount) -> None:
         self.active_object = None

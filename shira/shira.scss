@@ -13,11 +13,24 @@ Screen {
   background: $background-lighten-1;
 }
 
-SearchBar {
+#search-bar {
   padding: 0;
   border: none;
   height: 1;
-  width: 1fr;
+}
+
+#dropdown {
+    border-left: wide $success;
+    scrollbar-color: $success;
+}
+
+#dropdown .autocomplete--highlight-match {
+    color: $text;
+    background: $success;
+}
+
+#dropdown .autocomplete--selection-cursor {
+    background: $success 20%;
 }
 
 #search-input {
