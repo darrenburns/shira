@@ -68,6 +68,9 @@ class Shira(App):
         yield Crosshatch()
         # yield ObjectPanel(self._initial_object)
 
+    def on_mount(self) -> None:
+        self.query_one("#search-bar").focus(scroll_visible=False)
+
 
 def shira(initial_object: object | None = None) -> None:
     shira_app = Shira(initial_object=initial_object)
