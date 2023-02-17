@@ -489,7 +489,7 @@ dev = ["aiohttp (>=3.8.1)", "click (>=8.1.2)", "msgpack (>=1.0.3)"]
 
 [[package]]
 name = "textual-autocomplete"
-version = "1.2.0b0"
+version = "2.0.1b0"
 description = "Easily add autocomplete dropdowns to your Textual apps."
 category = "main"
 optional = false
@@ -497,6 +497,7 @@ python-versions = ">=3.7.8,<4.0.0"
 
 [package.dependencies]
 textual = ">=0.11.0,<0.12.0"
+typing-extensions = ">=4.5.0,<5.0.0"
 
 [[package]]
 name = "tomli"
@@ -581,7 +582,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "a6961626541b5a41922378e786cc86f8ee0f4cfd38dead66106bce3cf7e3f867"
+content-hash = "c883c5a64be55a075c7bcaa741319871ec746c7d0bc5d6079a5e3c7b5ffae7ce"
 
 [metadata.files]
 aiohttp = [
@@ -1206,8 +1207,8 @@ textual = [
     {file = "textual-0.11.1.tar.gz", hash = "sha256:9b027853b686ac9561a3dc6f2b637a25089f2ee67a9e37bbf39d0da7567694b0"},
 ]
 textual-autocomplete = [
-    {file = "textual_autocomplete-1.2.0b0-py3-none-any.whl", hash = "sha256:895cb39e71db85349affaea23ef74a3855495e203c94b01f7dda43fd9e68ad55"},
-    {file = "textual_autocomplete-1.2.0b0.tar.gz", hash = "sha256:2dafa62a2991cb95ea6faa6532ef2e7f6e6e83acd3f1d9583dbf051e9299e0f9"},
+    {file = "textual_autocomplete-2.0.1b0-py3-none-any.whl", hash = "sha256:b9cc0dbc23e925b9f4494595ce6bce010848d4f8af80a82948e3110100f58d90"},
+    {file = "textual_autocomplete-2.0.1b0.tar.gz", hash = "sha256:50ee97818646af9a6a1897b749c5dd04cd1e388a62c8869c646e1b2b81a10ccf"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},

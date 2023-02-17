@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pkgutil
 from pathlib import Path
+from typing import Any
 
 from rich.segment import Segment
 from textual.app import App, ComposeResult
@@ -9,16 +10,21 @@ from textual.containers import Horizontal
 from textual.strip import Strip
 from textual.widget import Widget
 from textual.widgets import Input, Label
-from textual_autocomplete import AutoComplete, Dropdown, DropdownItem
+from textual_autocomplete import AutoComplete, Dropdown, DropdownItem, InputState
 
 
-def get_candidates(input_value: str, cursor_position: int) -> list[DropdownItem]:
+def get_candidates(input_state: InputState) -> list[DropdownItem]:
+    def sort_key(item: DropdownItem) -> Any:
+        name = item.main.plain
+        return name.startswith("_"), name
+
+    input_value = input_state.value
     if "." not in input_value:
-        return [
+        return sorted([
             DropdownItem(main=module.name)
             for module in pkgutil.iter_modules()
             if input_value in module.name
-        ]
+        ], key=sort_key)
 
     return [
         DropdownItem(main="A"),
