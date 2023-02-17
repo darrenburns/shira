@@ -1,92 +1,42 @@
-Screen {
-  layers: overlay;
+#logo-left {
+  background: $success-darken-2;
 }
 
-#search-bar-container {
+#logo-mid {
+background: $success-darken-1;
+}
+
+Logo {
+  width: 5;
+}
+
+#logo-right {
+  background: $success;
+  color: $primary 85%;
+  text-style: bold;
+}
+
+#search-container {
   dock: top;
-  layout: horizontal;
-  width: 100%;
-  height: 1;
-}
-
-#search-bar:focus-within {
-  background: $background-lighten-1;
 }
 
 #search-bar {
-  padding: 0;
+  padding: 0 1;
   border: none;
   height: 1;
 }
 
 #dropdown {
-    border-left: wide $success;
-    scrollbar-color: $success;
+  border-left: wide $success;
+  scrollbar-color: $success;
+  max-width: 48;
 }
 
 #dropdown .autocomplete--highlight-match {
-    color: $text;
-    background: $success;
+  color: $text;
+  background: $success;
 }
 
 #dropdown .autocomplete--selection-cursor {
-    background: $success 20%;
-}
-
-#search-input {
-  padding-left: 1;
-}
-
-#search-prompt {
-  width: 3;
-  padding: 0 1;
-  background: $success;
-  color: $text;
-}
-
-
-#search-completion > .search-completion--selected-item {
-  color: $text;
-  background: $background-lighten-2;
-  text-style: bold;
-}
-
-#search-completion {
-  padding-right: 1;
-  height: auto;
-  border-left: wide $success-darken-1;
-}
-
-#search-completion-container {
-  dock: top;
-  width: 30;
-  margin-top: 1;
-  overflow: hidden auto;
-  height: auto;
-  max-height: 14;
-  layer: overlay;
-  scrollbar-size-vertical: 1;
-  scrollbar-color: $success;
-  background: $boost;
-  display: none;
-}
-
-#search-completion-context {
-  height: 1;
-  color: $text;
-  background: $background-darken-1;
-}
-
-#object-panel {
-  height: auto;
-  padding-right: 1;
-}
-
-#body-container {
-  background: $background;
-  overflow: hidden auto;
-  padding: 1 0 1 1;
-  scrollbar-gutter: stable;
-  scrollbar-size-vertical: 1;
-  scrollbar-color: $success;
+  background: $success 20%;
 }

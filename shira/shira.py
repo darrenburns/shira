@@ -4,8 +4,9 @@ import pkgutil
 from pathlib import Path
 
 from textual.app import App, ComposeResult
+from textual.containers import Horizontal
 from textual.widget import Widget
-from textual.widgets import Input
+from textual.widgets import Input, Label
 from textual_autocomplete import AutoComplete, Dropdown, DropdownItem
 
 from shira._object_panel import ObjectPanel
@@ -27,6 +28,15 @@ def get_candidates(input_value: str, cursor_position: int) -> list[DropdownItem]
     ]
 
 
+class Logo(Widget):
+    def compose(self) -> ComposeResult:
+        yield Horizontal(
+            Label(" ", id="logo-left"),
+            Label(" ", id="logo-mid"),
+            Label(" > ", id="logo-right"),
+        )
+
+
 class Shira(App):
     CSS_PATH = Path(__file__).parent / "shira.scss"
 
@@ -35,12 +45,16 @@ class Shira(App):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield AutoComplete(
-            Input(placeholder="Type to search...", id="search-bar"),
-            dropdown=Dropdown(
-                items=get_candidates,
-                id="dropdown"
+        yield Horizontal(
+            Logo(),
+            AutoComplete(
+                Input(placeholder="Type to search...", id="search-bar"),
+                dropdown=Dropdown(
+                    items=get_candidates,
+                    id="dropdown"
+                ),
             ),
+            id="search-container",
         )
         yield ObjectPanel(self._initial_object)
 
