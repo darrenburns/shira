@@ -1,23 +1,25 @@
-#logo-left {
-  background: $success-darken-2;
-}
-
-#logo-mid {
-background: $success-darken-1;
-}
-
 Logo {
-  width: 5;
-}
-
-#logo-right {
+  width: auto;
+  padding-right: 1;
   background: $success;
   color: $primary 85%;
   text-style: bold;
+  border-left: wide $success-lighten-2;
+}
+
+Crosshatch {
+  height: 100%;
+  width: 1fr;
+}
+
+Crosshatch .crosshatch {
+  background: $surface;
+  color: $surface-lighten-1;
 }
 
 #search-container {
   dock: top;
+  height: 1;
 }
 
 #search-bar {

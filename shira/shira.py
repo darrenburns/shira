@@ -3,13 +3,13 @@ from __future__ import annotations
 import pkgutil
 from pathlib import Path
 
+from rich.segment import Segment
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
+from textual.strip import Strip
 from textual.widget import Widget
 from textual.widgets import Input, Label
 from textual_autocomplete import AutoComplete, Dropdown, DropdownItem
-
-from shira._object_panel import ObjectPanel
 
 
 def get_candidates(input_value: str, cursor_position: int) -> list[DropdownItem]:
@@ -30,11 +30,20 @@ def get_candidates(input_value: str, cursor_position: int) -> list[DropdownItem]
 
 class Logo(Widget):
     def compose(self) -> ComposeResult:
-        yield Horizontal(
-            Label(" ", id="logo-left"),
-            Label(" ", id="logo-mid"),
-            Label(" > ", id="logo-right"),
-        )
+        yield Label(">", id="logo")
+
+
+class Crosshatch(Widget):
+    COMPONENT_CLASSES = {
+        "crosshatch",
+    }
+
+    def render_line(self, y: int) -> Strip:
+        style = self.get_component_rich_style("crosshatch")
+        segments = [
+            Segment("╲" * self.region.width, style=style)
+        ]
+        return Strip(segments)
 
 
 class Shira(App):
@@ -56,7 +65,8 @@ class Shira(App):
             ),
             id="search-container",
         )
-        yield ObjectPanel(self._initial_object)
+        yield Crosshatch()
+        # yield ObjectPanel(self._initial_object)
 
 
 def shira(initial_object: object | None = None) -> None:
